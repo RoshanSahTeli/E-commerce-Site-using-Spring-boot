@@ -1,0 +1,48 @@
+<html th:replace="admin_base::layout(~{::section})">
+	<head>
+		
+	</head>
+	<body>
+		<section>
+			<div class="col-sm-12 col-xl-12 mt-4">
+			                       <div class="bg-light rounded h-80 p-4">
+									
+									<div class="col-sm-12 col-xl-6">
+									                       <div class="bg-light rounded h-20 p-1">
+									                           <h6 class="mb-2">Add Category</h6>
+									                           <form th:action="@{/ADMIN/add_category}" method="post">
+									                               <div class="mb-3">
+									                                  
+									                                   <input type="text" class="form-control" id="exampleInputEmail1"
+									                                       aria-describedby="emailHelp" name="cname">
+									                               </div>
+									                               
+									                               <button type="submit" class="btn btn-primary">Add</button>
+									                           </form>
+									                       </div>
+									                   </div>
+			                           <h6 class="mb-4">Categories</h6>
+			                           <table class="table table-striped">
+			                               <thead>
+			                                   <tr>
+			                                       <th scope="col">Category id</th>
+			                                       <th scope="col">Category Name</th>
+												   <th scope="col">Sub Categories</th>
+			                                      
+			                                   </tr>
+			                               </thead>
+			                               <tbody>
+			                                   <tr th:each="e:${categories}">
+			                                       <th scope="row" th:text="${e.cid}"></th>
+			                                       <td th:text="${e.cname}"></td>
+												   <td> <a class="btn btn-primary" th:href="@{'/ADMIN/sub_category/' +${e.cid}}">View</a> </td>
+			                                       
+			                                   </tr>
+			                                   
+			                               </tbody>
+			                           </table>
+			                       </div>
+			                   </div>
+		</section>
+	</body>
+</html>
