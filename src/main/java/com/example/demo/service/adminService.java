@@ -21,6 +21,8 @@ import com.example.demo.Repository.productRepository;
 import com.example.demo.Repository.sunCatRepository;
 import com.example.demo.Repository.userRepository;
 
+import jakarta.transaction.Transactional;
+
 @Component
 public class adminService {
 	
@@ -115,12 +117,22 @@ public class adminService {
 		}
 		
 		public void add_subCategory(String subName,int cid,MultipartFile file) throws IllegalStateException, IOException {
-			String folderPath="D:\\myspring\\ECOM\\src\\main\\resources\\static\\image\\";
-			String npath=folderPath+file.getOriginalFilename();
-			String search="image\\";
-			int i=npath.indexOf(search);
 			subCategory s=new subCategory();
 			category c=crepo.findById(cid).get();
+			
+			if(file.isEmpty()) {
+				s.setImgPath("");
+			}
+			else {
+				String folderPath="D:\\myspring\\ECOM\\src\\main\\resources\\static\\image\\";
+				String npath=folderPath+file.getOriginalFilename();
+				String search="image\\";
+				int i=npath.indexOf(search);
+				file.transferTo(new File(npath));
+				s.setImgPath(npath.substring(i+search.length()));
+			}
+			
+			
 			if(subCategories(cid).isEmpty()) {
 				String new_name=c.getCname().replace(" ", "");
 				String Id=new_name+1;
@@ -134,11 +146,42 @@ public class adminService {
 				int num=Integer.parseInt(subID.substring(l))+1;
 				s.setSubId(c.getCname()+num);
 			}
-			file.transferTo(new File(npath));
-			s.setImgPath(npath.substring(i+search.length()));
 			s.setCreatedAt(LocalDateTime.now());
 			s.setSubName(subName);
 			s.setCategory(c);
 			srepo.save(s);
+		}
+			
+		
+		public subCategory findSubCategory(String sid) {
+			return srepo.findById(sid).get();
+		}
+		
+		@Transactional
+		public void updateSubCat(String sname,String id,MultipartFile file) throws IllegalStateException, IOException {
+			if(file.isEmpty()) {
+				srepo.updateSubCategory(sname, "", id);
+			}
+			else {
+				String folderPath="D:\\myspring\\ECOM\\src\\main\\resources\\static\\image\\";
+				String npath=folderPath+file.getOriginalFilename();
+				String search="image\\";
+				int i=npath.indexOf(search);
+				file.transferTo(new File(npath));
+			srepo.updateSubCategory(sname, (String)npath.substring(i+search.length()),id );}
+			
+		}
+		
+		public int findCatFromSubCat(String sid) {
+			subCategory s=srepo.findById(sid).get();
+			return s.getCategory().getCid();
+		}
+		
+		public void deleteSubById(String subId) {
+			srepo.deleteById(subId);
+		}
+		
+		public subCategory findSubCategoryBySubName(String sname) {
+			return srepo.findSubCategoryBySubName(sname);
 		}
 }

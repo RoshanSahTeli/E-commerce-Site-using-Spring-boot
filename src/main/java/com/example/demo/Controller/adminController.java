@@ -1,6 +1,7 @@
 package com.example.demo.Controller;
 
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.security.Principal;
 import java.util.List;
 
@@ -112,19 +113,56 @@ public class adminController {
 	@PostMapping("/add_subCategory")
 	public void add_subCategory(Model model,HttpSession session,HttpServletResponse response,
 			@RequestParam("cname")String subName, @RequestParam("image")  MultipartFile file) throws IOException {
+		if(aservice.findSubCategoryBySubName(subName)==null) {
+			int cid=(int) session.getAttribute("cid");
+			 aservice.add_subCategory(subName, cid,file);
+			 response.sendRedirect("/ADMIN/sub_category/"+cid);
 		
-		int cid=(int) session.getAttribute("cid");
-		 aservice.add_subCategory(subName, cid,file);
-		
-		response.sendRedirect("/ADMIN/sub_category/"+cid);
+		}
+		else {
+				
+			throw new FileAlreadyExistsException(subName);}
 	}
 	
 	@GetMapping("/viewSubCategory/{id}")
 	public String viewSubCategory(@PathVariable("id")String id,Model model,HttpSession session) {
 		model.addAttribute("user", session.getAttribute("user"));
-		
 		return "viewSubCategory";
 	}
+	
+	@GetMapping("/update_subCat/{id}")
+	public String updateCat(@PathVariable("id")String id,Model model,HttpSession session) {
+		subCategory sc=aservice.findSubCategory(id);
+		model.addAttribute("sub", sc);
+		model.addAttribute("user", session.getAttribute("user"));
+		return "updateCatForm";
+	}
+
+	@PostMapping("/updateSub/{id}")
+	public void updateSub(@PathVariable("id")String id, @RequestParam("image")MultipartFile file, @RequestParam("name") String sname, Model model,HttpSession session,HttpServletResponse response) throws IllegalStateException, IOException {
+		
+		
+		aservice.updateSubCat(sname, id, file);
+		int cid=aservice.findCatFromSubCat(id);
+		model.addAttribute("user", session.getAttribute("user"));
+		//model.addAttribute(", response)
+		response.sendRedirect("/ADMIN/sub_category/"+cid);
+		
+	}
+	
+	@GetMapping("/delete_subCat/{id}")
+	public void deleteSubCat(@PathVariable("id")String id,Model model,HttpSession session,
+			HttpServletResponse response) throws IOException 
+		{
+		int cid=aservice.findCatFromSubCat(id);
+		aservice.deleteSubById(id);
+		response.sendRedirect("/ADMIN/sub_category/"+cid);
+		
+	}
+	
+	
+	
+	
 	
 	
 }
