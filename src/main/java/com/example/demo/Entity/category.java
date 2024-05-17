@@ -18,6 +18,25 @@ public class category {
 	private int cid;
 	
 	private String cname;
+	
+	private String imgPath;
+	
+
+	public String getImgPath() {
+		return imgPath;
+	}
+
+
+
+
+
+	public void setImgPath(String imgPath) {
+		this.imgPath = imgPath;
+	}
+
+
+
+
 
 	@OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
 	private List<subCategory>subCategory;
@@ -26,11 +45,12 @@ public class category {
 
 	
 
-	public category(int cid, String cname, List<com.example.demo.Entity.subCategory> subCategory) {
+	public category(int cid, String cname, List<com.example.demo.Entity.subCategory> subCategory,String imgPath) {
 		super();
 		this.cid = cid;
 		this.cname = cname;
 		this.subCategory = subCategory;
+		this.imgPath=imgPath;
 	}
 
 

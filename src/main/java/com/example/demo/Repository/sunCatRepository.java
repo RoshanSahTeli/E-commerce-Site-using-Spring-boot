@@ -24,4 +24,8 @@ public interface sunCatRepository extends JpaRepository<subCategory, String> {
 	public void updateSubCategory(@Param("sname")String sname,@Param("img")String imgPath,@Param("id")String id);
 	
 	public subCategory findSubCategoryBySubName(String subName);
+	
+	@Modifying
+	@Query("delete  from subCategory s where s.category.cid= :cid")
+	public void deleteByCid(@Param("cid")int cid);
 }

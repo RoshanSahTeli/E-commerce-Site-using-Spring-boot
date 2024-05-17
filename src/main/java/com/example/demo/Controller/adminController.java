@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo.Entity.Brand;
 import com.example.demo.Entity.User;
 import com.example.demo.Entity.product;
 import com.example.demo.Entity.subCategory;
@@ -35,6 +36,8 @@ public class adminController {
 	@GetMapping("/home")
 	public String home(Model model,Principal principal,HttpSession session) {
 		String email=principal.getName();
+		session.setAttribute("rcount", aservice.findByStatus("Unverified").size());
+		model.addAttribute("rcount", aservice.findByStatus("Unverified").size());
 		model.addAttribute("user",aservice.findByEmail(email));
 		session.setAttribute("user", aservice.findByEmail(email));
 		session.setAttribute("categories", aservice.getCategories());
@@ -43,16 +46,20 @@ public class adminController {
 	}
 	
 	@GetMapping("/add_admin_form")
-	public String add_admin_form(HttpSession session,Model model) {
+	public String add_admin_form(HttpSession session,Model model,@RequestParam( name="role",required = false)String role) {
 		model.addAttribute("user", session.getAttribute("user"));
+		model.addAttribute("rcount", session.getAttribute("rcount"));
+		session.setAttribute("role", role);
 		return "add_admin_form";	
 	}
 	
 	@PostMapping("/register_admin")
 	public void register_admin(HttpServletResponse response,@ModelAttribute User user,
-			@RequestParam("image")MultipartFile file) throws IOException {
+			@RequestParam("image")MultipartFile file,Model model,HttpSession session) throws IOException {
 		System.out.println(file.getOriginalFilename());
-			aservice.admin_register(user, file);
+			//String role=(String) session.getAttribute("role");
+			aservice.admin_register(user, file,(String)session.getAttribute("role"));
+			model.addAttribute("rcount", session.getAttribute("rcount"));
 			response.sendRedirect("/ADMIN/add_admin_form");
 	}
 	
@@ -61,6 +68,7 @@ public class adminController {
 		model.addAttribute("user", session.getAttribute("user"));
 		List<com.example.demo.Entity.category> clist=aservice.getCategories();
 		model.addAttribute("clist", clist);
+		model.addAttribute("rcount", session.getAttribute("rcount"));
 		return "add_product_form";
 	}
 	@GetMapping("/subCategories")
@@ -77,6 +85,7 @@ public class adminController {
 			HttpServletResponse response) throws IllegalStateException, IOException {
 		System.out.println(sid);
 		aservice.add_product(p, file,sid);
+		model.addAttribute("rcount", session.getAttribute("rcount"));
 		response.sendRedirect("/ADMIN/add_product_form");
 	}
 	
@@ -84,6 +93,7 @@ public class adminController {
 	public String category( Model model,HttpSession session) {
 		model.addAttribute("user", session.getAttribute("user"));
 		List<com.example.demo.Entity.category> list=aservice.getCategories();
+		model.addAttribute("rcount", session.getAttribute("rcount"));
 		model.addAttribute("categories", list);
 		return "category";
 		
@@ -91,19 +101,38 @@ public class adminController {
 	}
 	
 	@PostMapping("/add_category")
-	public void add_category(Model model,HttpSession session,@RequestParam("cname")String cname,HttpServletResponse response) throws IOException
+	public void add_category(Model model,HttpSession session,@RequestParam("cname")String cname,@RequestParam("image") MultipartFile file  ,HttpServletResponse response) throws IOException
 	{
-		aservice.add_category(cname);
+		aservice.add_category(cname,file);
 		model.addAttribute("user", session.getAttribute("user"));
+		model.addAttribute("rcount", session.getAttribute("rcount"));
 		response.sendRedirect("/ADMIN/category");
 		
 	}
+	
+	@GetMapping("/updateFormCategory/{id}")
+	public String updateFormCategory(@PathVariable("id")int id,Model model,HttpSession session) {
+		model.addAttribute("category", aservice.findCategoryById(id));
+		model.addAttribute("user", session.getAttribute("user"));
+		model.addAttribute("categories", session.getAttribute("categories"));
+		model.addAttribute("rcount", session.getAttribute("rcount"));
+		return "updateCategory";
+	}
+	
+	@PostMapping("updateCat/{id}")
+	public void updateCat(@PathVariable("id")int id, @RequestParam("name")String cname, @RequestParam("image")MultipartFile file,Model model,HttpSession session,HttpServletResponse response) throws IOException {
+		aservice.updateCategory(file, cname, id);
+		model.addAttribute("rcount", session.getAttribute("rcount"));
+		response.sendRedirect("/ADMIN/category");
+	}
+	
 	
 	@GetMapping("/sub_category/{id}")
 	public String sub_category(@PathVariable("id")int id,  Model model,HttpSession session) {
 		model.addAttribute("user", session.getAttribute("user"));
 		List<subCategory> slist=aservice.subCategories(id);
 		model.addAttribute("subCategory", slist);
+		model.addAttribute("rcount", session.getAttribute("rcount"));
 		session.setAttribute("cid", id);
 		return "sub_category";
 	}
@@ -116,6 +145,7 @@ public class adminController {
 		if(aservice.findSubCategoryBySubName(subName)==null) {
 			int cid=(int) session.getAttribute("cid");
 			 aservice.add_subCategory(subName, cid,file);
+			 model.addAttribute("rcount", session.getAttribute("rcount"));
 			 response.sendRedirect("/ADMIN/sub_category/"+cid);
 		
 		}
@@ -127,6 +157,9 @@ public class adminController {
 	@GetMapping("/viewSubCategory/{id}")
 	public String viewSubCategory(@PathVariable("id")String id,Model model,HttpSession session) {
 		model.addAttribute("user", session.getAttribute("user"));
+		model.addAttribute("categories", session.getAttribute("categories"));
+		model.addAttribute("vsub", aservice.findSubCategory(id));
+		model.addAttribute("rcount", session.getAttribute("rcount"));
 		return "viewSubCategory";
 	}
 	
@@ -135,6 +168,8 @@ public class adminController {
 		subCategory sc=aservice.findSubCategory(id);
 		model.addAttribute("sub", sc);
 		model.addAttribute("user", session.getAttribute("user"));
+		model.addAttribute("categories", session.getAttribute("categories"));
+		model.addAttribute("rcount", session.getAttribute("rcount"));
 		return "updateCatForm";
 	}
 
@@ -145,9 +180,17 @@ public class adminController {
 		aservice.updateSubCat(sname, id, file);
 		int cid=aservice.findCatFromSubCat(id);
 		model.addAttribute("user", session.getAttribute("user"));
+		model.addAttribute("rcount", session.getAttribute("rcount"));
 		//model.addAttribute(", response)
 		response.sendRedirect("/ADMIN/sub_category/"+cid);
 		
+	}
+	
+	@GetMapping("deleteCategory/{id}")
+	public void deleteCategory(@PathVariable("id")int id, Model model,HttpSession session,HttpServletResponse response) throws IOException {
+		aservice.deleteCategory(id);
+		model.addAttribute("rcount", session.getAttribute("rcount"));
+		response.sendRedirect("/ADMIN/category");
 	}
 	
 	@GetMapping("/delete_subCat/{id}")
@@ -156,13 +199,84 @@ public class adminController {
 		{
 		int cid=aservice.findCatFromSubCat(id);
 		aservice.deleteSubById(id);
+		model.addAttribute("rcount", session.getAttribute("rcount"));
 		response.sendRedirect("/ADMIN/sub_category/"+cid);
 		
 	}
 	
+	@GetMapping("/brands/{id}")
+	public String brands(@PathVariable("id")String subId,  Model model,HttpSession session) {
+		List<Brand> blist=aservice.getBrands(subId);
+		model.addAttribute("blist", blist);
+		model.addAttribute("user", session.getAttribute("user"));
+		model.addAttribute("categories", session.getAttribute("categories"));
+		return "brands";
+	}
+	
+	@GetMapping("/request")
+	public String request(Model model,HttpSession session) {
+		List<User>rlist=aservice.findByStatus("Unverified");
+		model.addAttribute("rlist", rlist);
+		model.addAttribute("rcount", session.getAttribute("rcount"));
+		model.addAttribute("user",session.getAttribute("user"));
+		model.addAttribute("categories", session.getAttribute("categories"));
+		return "request";
+	}
+	
+	@GetMapping("/verify/{id}")
+	public void verify(Model model,HttpSession session,@PathVariable("id")int id,HttpServletResponse response) throws IOException {
+		aservice.verify("Verified", id);
+		User u=aservice.findById(id);
+		model.addAttribute("user",session.getAttribute("user"));
+		aservice.mail(u.getEmail(), "you are now Verified!", "Ecommerce");
+		response.sendRedirect("/ADMIN/request");
+	}
+	
+	@GetMapping("/reject/{id}")
+	public void reject(Model model, @PathVariable("id")int id,HttpSession session,HttpServletResponse response) throws IOException {
+		User u=aservice.findById(id);
+		model.addAttribute("user",session.getAttribute("user"));
+		aservice.mail(u.getEmail(), "rejected", "Ecommerce");
+		aservice.reject(id);
+		response.sendRedirect("/ADMIN/request");
+	}
+	
+	@GetMapping("/users")
+	public String  users(Model model,HttpSession session) {
+		List<User> users=aservice.getAllUsers("USER");
+		model.addAttribute("users", users);
+		model.addAttribute("user", session.getAttribute("user"));
+		model.addAttribute("categories", session.getAttribute("categories"));
+		model.addAttribute("rcount", session.getAttribute("rcount"));
+		return "users";
+	}
 	
 	
+	@GetMapping("/userUpdateForm/{id}")
+	public String userUpdateForm(@PathVariable("id")int id ,Model model,HttpSession session) {
+		User user=aservice.findUserById(id);
+		model.addAttribute("updateUser", user);
+		model.addAttribute("user", session.getAttribute("user"));
+		model.addAttribute("categories", session.getAttribute("categories"));
+		return "userUpdateForm";
+	}
+	@PostMapping("/updateUser/{id}")
+	public void updateUser(@PathVariable("id")int id,@RequestParam("name")String name,@RequestParam("address")String address,
+			@RequestParam("email")String email,@RequestParam("phone")String phone, Model model,HttpSession session,
+			HttpServletResponse response) throws IOException {
+		aservice.updateUser(name, address, email, phone, id);
+		model.addAttribute("user",session.getAttribute("user"));
+		model.addAttribute("categories", session.getAttribute("categories"));
+		model.addAttribute("rcount", session.getAttribute("rcount"));
+		response.sendRedirect("/ADMIN/users");
+	}
 	
-	
-	
+	@GetMapping("/userDelete/{id}")
+	public void delete(@PathVariable("id")int id,Model model,HttpSession session,HttpServletResponse response) throws IOException {
+		aservice.deleteUser(id);
+		model.addAttribute("user",session.getAttribute("user"));
+		model.addAttribute("categories", session.getAttribute("categories"));
+		model.addAttribute("rcount", session.getAttribute("rcount"));
+		response.sendRedirect("/ADMIN/users");
+	}
 }

@@ -8,14 +8,18 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo.Entity.Brand;
 import com.example.demo.Entity.User;
 import com.example.demo.Entity.category;
 import com.example.demo.Entity.product;
 import com.example.demo.Entity.subCategory;
+import com.example.demo.Repository.brandRepository;
 import com.example.demo.Repository.catRepository;
 import com.example.demo.Repository.productRepository;
 import com.example.demo.Repository.sunCatRepository;
@@ -25,6 +29,8 @@ import jakarta.transaction.Transactional;
 
 @Component
 public class adminService {
+	@Autowired
+	private JavaMailSender jms;
 	
 	@Autowired
 	private userRepository urepo;
@@ -38,33 +44,76 @@ public class adminService {
 	@Autowired
 	private sunCatRepository srepo;
 	
+	@Autowired 
+	private brandRepository brepo;
+	
 	public User findByEmail(String email) {
 		return urepo.findByEmail(email);
 	}
 	
-	public void admin_register(User u,MultipartFile file) throws IllegalStateException, IOException {
-		String folderPath="D:\\myspring\\ECOM\\src\\main\\resources\\static\\image\\";
+	public void admin_register(User u,MultipartFile file,String role) throws IllegalStateException, IOException {
+		User user=new User();
+		if(file.isEmpty()) {
+			user.setImgPath("profile.jpg");
+		}
+		else {
+		String folderPath="C:\\Users\\rosha\\Desktop\\pro\\ECOM\\src\\main\\resources\\static\\image\\";
 		String cpath=folderPath+file.getOriginalFilename();
 		String search="image\\";
 		int i=cpath.indexOf(search);
-		User user=new User();
 		user.setImgPath(cpath.substring(i+search.length()));
-		file.transferTo(new File(cpath));
+		file.transferTo(new File(cpath));}
 		user.setAddress(u.getAddress());
 		user.setEmail(u.getEmail());
 		user.setPassword(new BCryptPasswordEncoder().encode(u.getPassword()));
 		user.setPhone(u.getPhone());
 		user.setName(u.getName());
-		user.setRole("ADMIN");
-		user.setGender(u.getGender());
+		user.setRole(role);
+		user.setStatus("Verified");
 		urepo.save(user);
 		
 	}
 	
-	public void add_category(String cname) {
+	public void add_category(String cname,MultipartFile file) throws IllegalStateException, IOException {
+		String folderPath="C:\\Users\\rosha\\Desktop\\pro\\ECOM\\src\\main\\resources\\static\\image\\";
 		category c=new category();
+		if(file.isEmpty()) {
+			c.setImgPath("");
+		}
+		else {
+		String npath=folderPath+file.getOriginalFilename();
+		String search="image\\";
+		int i=npath.indexOf(search);
+		file.transferTo(new File(npath));
+		c.setImgPath(npath.substring(i+search.length()));}
+		
 		c.setCname(cname);
 		crepo.save(c);
+	}
+	
+	
+	@Transactional
+	public void updateCategory(MultipartFile file,String cname,int cid) throws IllegalStateException, IOException {
+		String folderPath="C:\\Users\\rosha\\Desktop\\pro\\ECOM\\src\\main\\resources\\static\\image\\";
+		
+		if(file.isEmpty()) {
+			crepo.updateCategory(cname, "", cid);
+		}
+		else {
+			String npath=folderPath+file.getOriginalFilename();
+			String search="image\\";
+			int i=npath.indexOf(search);
+			file.transferTo(new File(npath));
+			crepo.updateCategory(cname, npath.substring(i+search.length()), cid);
+		}
+		
+	}
+	
+	
+	@Transactional
+	public void deleteCategory(int cid) {
+		srepo.deleteByCid(cid);
+		crepo.deleteById(cid);
 	}
 	
 	public List<category> getCategories(){
@@ -72,7 +121,7 @@ public class adminService {
 	}
 	
 	public void add_product(product product,MultipartFile file,String sid) throws IllegalStateException, IOException {
-		String folderPath="D:\\myspring\\ECOM\\src\\main\\resources\\static\\image\\";
+		String folderPath="C:\\Users\\rosha\\Desktop\\pro\\ECOM\\src\\main\\resources\\static\\image\\";
 		String nPath=folderPath+file.getOriginalFilename();
 		String search="image\\";
 		int i=nPath.indexOf(search);
@@ -124,7 +173,7 @@ public class adminService {
 				s.setImgPath("");
 			}
 			else {
-				String folderPath="D:\\myspring\\ECOM\\src\\main\\resources\\static\\image\\";
+				String folderPath="C:\\Users\\rosha\\Desktop\\pro\\ECOM\\src\\main\\resources\\static\\image\\";
 				String npath=folderPath+file.getOriginalFilename();
 				String search="image\\";
 				int i=npath.indexOf(search);
@@ -163,13 +212,17 @@ public class adminService {
 				srepo.updateSubCategory(sname, "", id);
 			}
 			else {
-				String folderPath="D:\\myspring\\ECOM\\src\\main\\resources\\static\\image\\";
+				String folderPath="C:\\Users\\rosha\\Desktop\\pro\\ECOM\\src\\main\\resources\\static\\image\\";
 				String npath=folderPath+file.getOriginalFilename();
 				String search="image\\";
 				int i=npath.indexOf(search);
 				file.transferTo(new File(npath));
 			srepo.updateSubCategory(sname, (String)npath.substring(i+search.length()),id );}
 			
+		}
+		
+		public List<Brand> getBrands(String subId){
+			return brepo.getBrands(subId);
 		}
 		
 		public int findCatFromSubCat(String sid) {
@@ -183,5 +236,51 @@ public class adminService {
 		
 		public subCategory findSubCategoryBySubName(String sname) {
 			return srepo.findSubCategoryBySubName(sname);
+		}
+		
+		public category findCategoryById(int id) {
+			return crepo.findById(id).get();
+		}
+		
+		public List<User> findByStatus(String status) {
+			return urepo.findByStatus(status);
+		}
+		
+		public void mail(String to,String body,String subject) {
+			SimpleMailMessage message=new SimpleMailMessage();
+			message.setFrom("roshanshah920@gmail.com");
+			message.setTo(to);
+			message.setText(body);
+			message.setSubject(subject);
+			jms.send(message);
+			
+		}
+		
+		
+		@Transactional
+		public void verify(String status,int id) {
+			urepo.verify(status, id);
+		}
+		
+		public User findById(int id) {
+			return urepo.findById(id).get();
+		}
+		public void reject(int id) {
+			urepo.deleteById(id);
+		}
+		
+		public List<User> getAllUsers(String role){
+			return urepo.findByRole(role);
+		}
+		public User findUserById(int id) {
+			return urepo.findById(id).get();
+		}
+		@Transactional
+		public void updateUser(String name,String address,String email,String phone,int id) {
+			urepo.updateUser(name, address, email, phone, id);
+		}
+		
+		public void deleteUser(int id) {
+			urepo.deleteById(id);
 		}
 }

@@ -30,10 +30,23 @@ public class User {
 	
 	private String imgPath;
 	
-	private String gender;
+	private String status;
+	
+	
 	
 	@OneToMany(mappedBy = "pid",cascade = CascadeType.ALL )
 	public Set<product> product;
+
+	
+	
+	
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
 
 	public int getId() {
 		return id;
@@ -99,13 +112,7 @@ public class User {
 		this.imgPath = imgPath;
 	}
 
-	public String getGender() {
-		return gender;
-	}
-
-	public void setGender(String gender) {
-		this.gender = gender;
-	}
+	
 
 	public Set<product> getProduct() {
 		return product;
@@ -118,12 +125,11 @@ public class User {
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", name=" + name + ", address=" + address + ", email=" + email + ", password="
-				+ password + ", role=" + role + ", phone=" + phone + ", imgPath=" + imgPath + ", gender=" + gender
-				+ ", product=" + product + "]";
+				+ password + ", role=" + role + ", phone=" + phone + ", imgPath=" + imgPath + ", product=" + product + "]";
 	}
 
 	public User(int id, String name, String address, String email, String password, String role, String phone,
-			String imgPath, String gender, Set<com.example.demo.Entity.product> product) {
+			String imgPath ,String status, Set<com.example.demo.Entity.product> product) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -133,8 +139,8 @@ public class User {
 		this.role = role;
 		this.phone = phone;
 		this.imgPath = imgPath;
-		this.gender = gender;
 		this.product = product;
+		this.status=status;
 	}
 
 	public User() {

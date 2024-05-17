@@ -24,8 +24,14 @@ public class userController {
 	@GetMapping("/home")
 	public String home(Model model,HttpSession session,Principal principal) {
 		  User user= aservice.findByEmail(principal.getName());
+		  if(user.getStatus()=="Unverified") {
+			  model.addAttribute("user", user);
+			  return "login";
+		  }
+		  else {
 		  model.addAttribute("user", user);
 		  session.setAttribute("user", user);
 		return "user_home";
+		  }
 	}
 }
