@@ -57,7 +57,7 @@ public class adminService {
 			user.setImgPath("profile.jpg");
 		}
 		else {
-		String folderPath="C:\\Users\\rosha\\Desktop\\pro\\ECOM\\src\\main\\resources\\static\\image\\";
+		String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\project\\ECOM\\src\\main\\resources\\static\\image\\";
 		String cpath=folderPath+file.getOriginalFilename();
 		String search="image\\";
 		int i=cpath.indexOf(search);
@@ -75,7 +75,7 @@ public class adminService {
 	}
 	
 	public void add_category(String cname,MultipartFile file) throws IllegalStateException, IOException {
-		String folderPath="C:\\Users\\rosha\\Desktop\\pro\\ECOM\\src\\main\\resources\\static\\image\\";
+		String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\project\\ECOM\\src\\main\\resources\\static\\image\\";
 		category c=new category();
 		if(file.isEmpty()) {
 			c.setImgPath("");
@@ -94,7 +94,7 @@ public class adminService {
 	
 	@Transactional
 	public void updateCategory(MultipartFile file,String cname,int cid) throws IllegalStateException, IOException {
-		String folderPath="C:\\Users\\rosha\\Desktop\\pro\\ECOM\\src\\main\\resources\\static\\image\\";
+		String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\project\\ECOM\\src\\main\\resources\\static\\image\\";
 		
 		if(file.isEmpty()) {
 			crepo.updateCategory(cname, "", cid);
@@ -120,41 +120,46 @@ public class adminService {
 		return crepo.findAll();
 	}
 	
-	public void add_product(product product,MultipartFile file,String sid) throws IllegalStateException, IOException {
-		String folderPath="C:\\Users\\rosha\\Desktop\\pro\\ECOM\\src\\main\\resources\\static\\image\\";
+	public void add_product(product product,MultipartFile file,String bid) throws IllegalStateException, IOException {
+		String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\project\\ECOM\\src\\main\\resources\\static\\image\\";
 		String nPath=folderPath+file.getOriginalFilename();
 		String search="image\\";
 		int i=nPath.indexOf(search);
 		
 		product p=new product();
-		subCategory sc= srepo.findById(sid).get();
-		List<product> lp=prepo.findProductBySubId(sid);
+		Brand b= brepo.findById(bid).get();
+		List<product> lp=prepo.findProductByBId(bid);
 		
+		if(file.isEmpty()) {
+			p.setImgPath("");
+		}
+		else {
+			file.transferTo(new File(nPath));
+			p.setImgPath(nPath.substring(i+search.length()));
+		}
 		//Generating ID
 		//sproduct pro=prepo.findByPname(product.getPname());
 		if(lp.isEmpty()) {
-			p.setPid(sc.getSubName().replaceAll("\\s", "")+1);
-			file.transferTo(new File(nPath));
+			p.setPid(b.getBname().replaceAll("\\s", "")+1);
+			
 		}
 		else {
-			product pp=prepo.findProductBySubIdOrderByCreatedAt(sid);
+			product pp=prepo.findProductByBIdOrderByCreatedAt(bid);
 			String pid=pp.getPid();
-			String new_name=sc.getSubName().replace(" ","");
+			String new_name=b.getBname().replace(" ","");
 			int l=new_name.length();
 			int num=Integer.parseInt(pid.substring(l))+1;
 			String ppid=new_name+num;
 			p.setPid(ppid);
-			file.transferTo(new File(nPath));
 			
 		}
-		p.setSubCategory(sc);
-		p.setImgPath(nPath.substring(i+search.length()));
+		p.setBrand(b);
 		p.setPname(product.getPname());
 		p.setBrand(product.getBrand());
-		p.setCategory(product.getCategory());
 		p.setDescription(product.getDescription());
 		p.setPrice(product.getPrice());
 		p.setAddDate(LocalDate.now());
+		p.setStatus("Unsold");
 		prepo.save(p);
 		
 		
@@ -173,7 +178,7 @@ public class adminService {
 				s.setImgPath("");
 			}
 			else {
-				String folderPath="C:\\Users\\rosha\\Desktop\\pro\\ECOM\\src\\main\\resources\\static\\image\\";
+				String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\project\\ECOM\\src\\main\\resources\\static\\image\\";
 				String npath=folderPath+file.getOriginalFilename();
 				String search="image\\";
 				int i=npath.indexOf(search);
@@ -212,7 +217,7 @@ public class adminService {
 				srepo.updateSubCategory(sname, "", id);
 			}
 			else {
-				String folderPath="C:\\Users\\rosha\\Desktop\\pro\\ECOM\\src\\main\\resources\\static\\image\\";
+				String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\project\\ECOM\\src\\main\\resources\\static\\image\\";
 				String npath=folderPath+file.getOriginalFilename();
 				String search="image\\";
 				int i=npath.indexOf(search);
@@ -224,10 +229,70 @@ public class adminService {
 		public List<Brand> getBrands(String subId){
 			return brepo.getBrands(subId);
 		}
+		public void addBrand(String name,String subId,MultipartFile file) throws IllegalStateException, IOException {
+			Brand b= new Brand();
+			subCategory sc=srepo.findById(subId).get();
+			if(file.isEmpty()) {
+				b.setImgPath("");
+			}
+			else {
+				String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\project\\ECOM\\src\\main\\resources\\static\\image\\";
+				String npath=folderPath+file.getOriginalFilename();
+				String search="image\\";
+				int i=npath.indexOf(search);
+				file.transferTo(new File(npath));
+				b.setImgPath(npath.substring(i+search.length()));
+			}
+			
+			if(getBrands(subId).isEmpty()) {
+					String sname=sc.getSubName().replace(" ", "");
+					b.setBid(sname+1);
+			}
+			else {
+				Brand br=brepo.findLastAddedBrand(subId);
+				String lid=br.getBid();
+				int l=sc.getSubName().length();
+				int num= Integer.parseInt(lid.substring(l))+1;
+				b.setBid(sc.getSubName()+num);
+			}
+			b.setCreatedAt(LocalDateTime.now());
+			b.setSubCategory(sc);
+			b.setBname(name);
+			brepo.save(b);
+		}
+		
+		public Brand findBrandById(String id) {
+			return brepo.findById(id).get();
+		}
+		
+		@Transactional
+		public void updateBrand(String bname ,MultipartFile file, String bid) throws IllegalStateException, IOException {
+			Brand br=findBrandById(bid);
+			if(file.isEmpty()) {
+				brepo.updateBrand(bname, br.getImgPath(), bid);
+			}
+			
+			else {
+				String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\project\\ECOM\\src\\main\\resources\\static\\image\\";
+				String npath=folderPath+file.getOriginalFilename();
+				String search="image\\";
+				int i=npath.indexOf(search);
+				file.transferTo(new File(npath));
+				brepo.updateBrand(bname, npath.substring(i+search.length()), bid);
+			}
+		}
+		
+		public void deleteBrand(String bid) {
+			brepo.deleteById(bid);
+		}
 		
 		public int findCatFromSubCat(String sid) {
 			subCategory s=srepo.findById(sid).get();
 			return s.getCategory().getCid();
+		}
+		
+		public List<product> findProductsByBid(String bid){
+			return prepo.findProductByBId(bid);
 		}
 		
 		public void deleteSubById(String subId) {
@@ -245,7 +310,29 @@ public class adminService {
 		public List<User> findByStatus(String status) {
 			return urepo.findByStatus(status);
 		}
+		public product findProductById(String id) {
+			return prepo.findById(id).get();
+		}
 		
+		@Transactional
+		public void updateProduct(String pname,String price,String description,MultipartFile file,String pid) throws IllegalStateException, IOException {
+			
+			String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\project\\ECOM\\src\\main\\resources\\static\\image\\";
+			String npath=folderPath+file.getOriginalFilename();
+			String search="image\\";
+			int i=npath.indexOf(search);
+			if(file.isEmpty()) {
+				prepo.updateProduct(pname, price, description, findProductById(pid).getImgPath(), pid);
+			}
+			else {
+				prepo.updateProduct(pname, price, description, npath.substring(i+search.length()), pid);
+				file.transferTo(new File(npath));
+			}
+		}
+		
+		public void deleteProduct(String pid) {
+			prepo.deleteById(pid);
+		}
 		public void mail(String to,String body,String subject) {
 			SimpleMailMessage message=new SimpleMailMessage();
 			message.setFrom("roshanshah920@gmail.com");
@@ -282,5 +369,9 @@ public class adminService {
 		
 		public void deleteUser(int id) {
 			urepo.deleteById(id);
+		}
+		
+		public List<product> findProductFromSubCategory(String subId){
+			return prepo.findProductBySubCategory(subId);
 		}
 }

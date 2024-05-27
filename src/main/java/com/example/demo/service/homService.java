@@ -25,7 +25,7 @@ public class homService {
 		}
 		else {
 			
-		String folderPath="D:\\myspring\\ECOM\\src\\main\\resources\\static\\image\\";
+		String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\project\\ECOM\\src\\main\\resources\\static\\image\\";
 		String nPath=folderPath+file.getOriginalFilename();
 		String search="image\\";
 		int i=nPath.indexOf(search);

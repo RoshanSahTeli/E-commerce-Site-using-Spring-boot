@@ -17,6 +17,8 @@ public class Brand {
 	
 	private String bname;
 	
+	private String imgPath;
+	
 	private LocalDateTime createdAt;
 	
 	@ManyToOne
@@ -24,45 +26,79 @@ public class Brand {
 	@JsonIgnore
 	public subCategory subCategory;
 
+	
+
+	public Brand(String bid, String bname, String imgPath, LocalDateTime createdAt,
+			com.example.demo.Entity.subCategory subCategory) {
+		super();
+		this.bid = bid;
+		this.bname = bname;
+		this.imgPath = imgPath;
+		this.createdAt = createdAt;
+		this.subCategory = subCategory;
+	}
+
+
+
 	public String getBid() {
 		return bid;
 	}
+
+
 
 	public void setBid(String bid) {
 		this.bid = bid;
 	}
 
+
+
 	public String getBname() {
 		return bname;
 	}
+
+
 
 	public void setBname(String bname) {
 		this.bname = bname;
 	}
 
+
+
+	public String getImgPath() {
+		return imgPath;
+	}
+
+
+
+	public void setImgPath(String imgPath) {
+		this.imgPath = imgPath;
+	}
+
+
+
 	public LocalDateTime getCreatedAt() {
 		return createdAt;
 	}
+
+
 
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
 
-	public subCategory getCategory() {
+
+
+	public subCategory getSubCategory() {
 		return subCategory;
 	}
 
-	public void setCategory(subCategory category) {
-		this.subCategory = category;
+
+
+	public void setSubCategory(subCategory subCategory) {
+		this.subCategory = subCategory;
 	}
 
-	public Brand(String bid, String bname, LocalDateTime createdAt, subCategory category) {
-		super();
-		this.bid = bid;
-		this.bname = bname;
-		this.createdAt = createdAt;
-		this.subCategory = category;
-	}
+
 
 	public Brand() {
 		super();

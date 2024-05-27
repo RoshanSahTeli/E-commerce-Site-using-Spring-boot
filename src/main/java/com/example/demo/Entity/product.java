@@ -18,13 +18,11 @@ public class product {
 	
 	private String description;
 	
-	private String	brand;
-	
 	private String imgPath;
 	
 	private String price;
 	
-	private String category;
+	private String status;
 	
 	private LocalDate addDate;
 	
@@ -32,30 +30,37 @@ public class product {
 	
 	
 	@ManyToOne
-	@JoinColumn(name="subId")
-	private subCategory subCategory;
+	@JoinColumn(name="bid")
+	private Brand brand;
 	
-	@ManyToOne
-	@JoinColumn(name = "uid")
-	private User u;
-	
-	
-
-	
-
-	public product(String pid, String pname, String description, String brand, String imgPath, String price,
-			String category, LocalDate addDate, com.example.demo.Entity.subCategory subCategory, User u) {
+	public product(String pid, String pname, String description, String imgPath, String price,
+			LocalDate addDate,String status, Brand brand, User u) {
 		super();
 		this.pid = pid;
 		this.pname = pname;
 		this.description = description;
-		this.brand = brand;
 		this.imgPath = imgPath;
 		this.price = price;
-		this.category = category;
+		this.status=status;
 		this.addDate = addDate;
-		this.subCategory = subCategory;
+		this.brand = brand;
 		this.u = u;
+	}
+
+
+
+
+
+	public String getStatus() {
+		return status;
+	}
+
+
+
+
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 
@@ -110,22 +115,6 @@ public class product {
 
 
 
-	public String getBrand() {
-		return brand;
-	}
-
-
-
-
-
-	public void setBrand(String brand) {
-		this.brand = brand;
-	}
-
-
-
-
-
 	public String getImgPath() {
 		return imgPath;
 	}
@@ -158,17 +147,13 @@ public class product {
 
 
 
-	public String getCategory() {
-		return category;
-	}
+	
 
 
 
 
 
-	public void setCategory(String category) {
-		this.category = category;
-	}
+	
 
 
 
@@ -190,16 +175,16 @@ public class product {
 
 
 
-	public subCategory getSubCategory() {
-		return subCategory;
+	public Brand getBrand() {
+		return brand;
 	}
 
 
 
 
 
-	public void setSubCategory(subCategory subCategory) {
-		this.subCategory = subCategory;
+	public void setBrand(Brand brand) {
+		this.brand = brand;
 	}
 
 
@@ -219,6 +204,14 @@ public class product {
 	}
 
 
+
+
+
+	@ManyToOne
+	@JoinColumn(name = "uid")
+	private User u;
+	
+	
 
 
 
