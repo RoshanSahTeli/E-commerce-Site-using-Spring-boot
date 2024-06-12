@@ -12,7 +12,7 @@ import com.example.demo.Entity.product;
 
 public interface productRepository extends JpaRepository<product, String> {
 	
-	product findByPname(String pname);
+	List<product> findByPname(String pname);
 	
 	public product findTopByPnameOrderByAddDateDesc(String name);
 	
@@ -30,5 +30,7 @@ public interface productRepository extends JpaRepository<product, String> {
 	
 	@Query("select p from product p where p.brand.subCategory.subId= :subID")
 	public List<product>findProductBySubCategory(@Param("subID")String subID);
+	
+	
 
 }

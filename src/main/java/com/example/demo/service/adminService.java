@@ -57,7 +57,7 @@ public class adminService {
 			user.setImgPath("profile.jpg");
 		}
 		else {
-		String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\project\\ECOM\\src\\main\\resources\\static\\image\\";
+		String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\New folder\\ECOM\\src\\main\\resources\\static\\image\\";
 		String cpath=folderPath+file.getOriginalFilename();
 		String search="image\\";
 		int i=cpath.indexOf(search);
@@ -75,7 +75,7 @@ public class adminService {
 	}
 	
 	public void add_category(String cname,MultipartFile file) throws IllegalStateException, IOException {
-		String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\project\\ECOM\\src\\main\\resources\\static\\image\\";
+		String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\New folder\\ECOM\\src\\main\\resources\\static\\image\\";
 		category c=new category();
 		if(file.isEmpty()) {
 			c.setImgPath("");
@@ -94,7 +94,7 @@ public class adminService {
 	
 	@Transactional
 	public void updateCategory(MultipartFile file,String cname,int cid) throws IllegalStateException, IOException {
-		String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\project\\ECOM\\src\\main\\resources\\static\\image\\";
+		String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\New folder\\ECOM\\src\\main\\resources\\static\\image\\";
 		
 		if(file.isEmpty()) {
 			crepo.updateCategory(cname, "", cid);
@@ -121,7 +121,7 @@ public class adminService {
 	}
 	
 	public void add_product(product product,MultipartFile file,String bid) throws IllegalStateException, IOException {
-		String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\project\\ECOM\\src\\main\\resources\\static\\image\\";
+		String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\New folder\\ECOM\\src\\main\\resources\\static\\image\\";
 		String nPath=folderPath+file.getOriginalFilename();
 		String search="image\\";
 		int i=nPath.indexOf(search);
@@ -159,7 +159,7 @@ public class adminService {
 		p.setDescription(product.getDescription());
 		p.setPrice(product.getPrice());
 		p.setAddDate(LocalDate.now());
-		p.setStatus("Unsold");
+		p.setQuantity(product.getQuantity());
 		prepo.save(p);
 		
 		
@@ -178,7 +178,7 @@ public class adminService {
 				s.setImgPath("");
 			}
 			else {
-				String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\project\\ECOM\\src\\main\\resources\\static\\image\\";
+				String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\New folder\\ECOM\\src\\main\\resources\\static\\image\\";
 				String npath=folderPath+file.getOriginalFilename();
 				String search="image\\";
 				int i=npath.indexOf(search);
@@ -217,7 +217,7 @@ public class adminService {
 				srepo.updateSubCategory(sname, "", id);
 			}
 			else {
-				String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\project\\ECOM\\src\\main\\resources\\static\\image\\";
+				String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\New folder\\ECOM\\src\\main\\resources\\static\\image\\";
 				String npath=folderPath+file.getOriginalFilename();
 				String search="image\\";
 				int i=npath.indexOf(search);
@@ -236,7 +236,7 @@ public class adminService {
 				b.setImgPath("");
 			}
 			else {
-				String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\project\\ECOM\\src\\main\\resources\\static\\image\\";
+				String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\New folder\\ECOM\\src\\main\\resources\\static\\image\\";
 				String npath=folderPath+file.getOriginalFilename();
 				String search="image\\";
 				int i=npath.indexOf(search);
@@ -273,7 +273,7 @@ public class adminService {
 			}
 			
 			else {
-				String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\project\\ECOM\\src\\main\\resources\\static\\image\\";
+				String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\New folder\\ECOM\\src\\main\\resources\\static\\image\\";
 				String npath=folderPath+file.getOriginalFilename();
 				String search="image\\";
 				int i=npath.indexOf(search);
@@ -317,7 +317,7 @@ public class adminService {
 		@Transactional
 		public void updateProduct(String pname,String price,String description,MultipartFile file,String pid) throws IllegalStateException, IOException {
 			
-			String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\project\\ECOM\\src\\main\\resources\\static\\image\\";
+			String folderPath="C:\\Users\\rosha\\OneDrive\\Desktop\\New folder\\ECOM\\src\\main\\resources\\static\\image\\";
 			String npath=folderPath+file.getOriginalFilename();
 			String search="image\\";
 			int i=npath.indexOf(search);

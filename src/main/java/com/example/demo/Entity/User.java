@@ -1,5 +1,6 @@
 package com.example.demo.Entity;
 
+import java.util.List;
 import java.util.Set;
 
 import jakarta.persistence.CascadeType;
@@ -38,6 +39,8 @@ public class User {
 	public Set<product> product;
 
 	
+	@OneToMany(mappedBy = "cart_id",cascade = CascadeType.ALL)
+	public List<cart> cart;
 	
 	
 	public String getStatus() {
