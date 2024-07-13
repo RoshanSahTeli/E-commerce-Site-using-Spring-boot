@@ -38,19 +38,36 @@ public class userService {
 	public void addToCart(String pid, String email, int quantity) {
 		CartItems citems = new CartItems();
 		product product = prepo.findById(pid).get();
-		cart c = new cart();
+		cart c = crepo.findUserCart(urepo.findByEmail(email).getId());
+		if(c==null) {
+			c=new cart();
+			c.setUser(urepo.findByEmail(email));
+			crepo.save(c);
+		}
+		double total=0;
 		if (cirepo.CartItem(pid, urepo.findByEmail(email).getId()) == null) {
 			citems.setProduct(product);
 			citems.setQuantity(quantity);
 			citems.setCart(c);
-			c.setUser(urepo.findByEmail(email));
-			crepo.save(c);
+			citems.setTotal((double)Integer.parseInt(product.getPrice())*quantity);
 			cirepo.save(citems);
+			for(CartItems ci : findCartItems(email)) {
+				total=total+ci.getTotal();
+			}
+			c.setSubTotal(total);
 		}
 
 		else {
 			CartItems citem = cirepo.findCartItemsByPid(pid);
-			cirepo.UpdateQuantity(citem.getQuantity()+quantity, pid);
+			citem.setQuantity(citem.getQuantity()+quantity);
+			citem.setTotal(citem.getTotal()+( Integer.parseInt(product.getPrice())*quantity));
+			cirepo.save(citem);
+			double t=0;
+			for(CartItems ci : findCartItems(email)) {
+				t=t+ci.getTotal();
+			}
+			c.setSubTotal(t);
+
 		}
 
 	}
@@ -62,5 +79,18 @@ public class userService {
 	public int getQuantity(String pid) {
 		return prepo.findById(pid).get().getQuantity();
 	}
-
+	
+	public List<CartItems> findCartItems(String email){
+		return cirepo.findCartItems(urepo.findByEmail(email).getId());
+	}
+	
+	@Transactional
+	public void removeItemFromCart(int id,String email) {
+		crepo.updateSubTotal(cirepo.findById(id).get().getCart().getSubTotal()-cirepo.findById(id).get().getTotal(),cirepo.findById(id).get().getCart().getUser().getId());
+		 cirepo.deleteById(id);
+	}
+	
+	public cart findCart(String email) {
+		return crepo.findById(urepo.findByEmail(email).getCart().getCart_id()).get();
+	}
 }

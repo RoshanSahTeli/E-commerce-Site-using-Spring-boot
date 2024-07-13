@@ -31,6 +31,5 @@ public interface productRepository extends JpaRepository<product, String> {
 	@Query("select p from product p where p.brand.subCategory.subId= :subID")
 	public List<product>findProductBySubCategory(@Param("subID")String subID);
 	
-	
 
 }

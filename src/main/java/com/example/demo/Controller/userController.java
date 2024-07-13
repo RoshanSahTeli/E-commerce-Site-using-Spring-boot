@@ -2,6 +2,7 @@ package com.example.demo.Controller;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.demo.Entity.CartItems;
 import com.example.demo.Entity.User;
 import com.example.demo.Entity.product;
 import com.example.demo.service.adminService;
@@ -44,6 +46,9 @@ public class userController {
 			session.setAttribute("user", user);
 			model.addAttribute("categories", aservice.getCategories());
 			session.setAttribute("categories", aservice.getCategories());
+			List<CartItems>citems=uservice.findCartItems(principal.getName());
+			session.setAttribute("cartCount",citems.size());
+			model.addAttribute("cartCount", citems.size());
 			return "user_home";
 		}
 	}
@@ -92,4 +97,23 @@ public class userController {
 		}
 
 	}
+	
+	@GetMapping("/cart")
+	public String cart(Model model,HttpSession session,Principal principal) {
+		model.addAttribute("user", session.getAttribute("user"));
+		model.addAttribute("categories", session.getAttribute("categories"));
+		List<CartItems> list= uservice.findCartItems(principal.getName());
+		model.addAttribute("items",list);
+		model.addAttribute("cartc", uservice.findCart(principal.getName()));
+		return "cart";
+	}
+	
+	@GetMapping("/removeItemFromCart")
+	public void removeItemFromCart(@RequestParam("id")int id,Model model,HttpSession session,HttpServletResponse response,Principal principal) throws IOException {
+		uservice.removeItemFromCart(id,principal.getName());
+		response.sendRedirect("/USER/cart");
+	}
+	
+	
+
 }

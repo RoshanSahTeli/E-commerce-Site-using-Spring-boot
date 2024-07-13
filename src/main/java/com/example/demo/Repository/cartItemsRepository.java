@@ -1,5 +1,7 @@
 package com.example.demo.Repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -16,6 +18,9 @@ public interface cartItemsRepository extends JpaRepository<CartItems, Integer>{
 	public CartItems findCartItemsByPid(@Param("pid")String pid);
 	
 	@Modifying
-	@Query("update CartItems c set c.quantity= :nq where c.product.pid= :pid")
-	public void UpdateQuantity(@Param("nq")int quantity,@Param("pid")String pid);
+	@Query("update CartItems c set c.quantity= :nq , c.total= :total where c.product.pid= :pid")
+	public void UpdateQuantity(@Param("nq")int quantity , @Param("total")double total, @Param("pid")String pid);
+	
+	@Query("select c from CartItems c where c.cart.user.id= :id")
+	public List<CartItems> findCartItems(@Param("id")int id);
 }

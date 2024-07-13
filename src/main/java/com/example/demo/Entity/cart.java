@@ -28,6 +28,18 @@ public class cart {
 	@JsonIgnore
 	public User user;
 	
+	private double subTotal;
+	
+	
+	
+	public double getSubTotal() {
+		return subTotal;
+	}
+
+	public void setSubTotal(double subTotal) {
+		this.subTotal = subTotal;
+	}
+
 	@OneToMany(cascade = CascadeType.ALL,orphanRemoval = true,mappedBy = "cart")
 	//	@JoinColumn(name = "citem_id")
 	private List<CartItems> citems=new ArrayList<>();
@@ -58,9 +70,10 @@ public class cart {
 		this.citems = citems;
 	}
 
-	public cart(int cart_id, User user, List<CartItems> citems) {
+	public cart(int cart_id, User user, List<CartItems> citems,double subTotal) {
 		super();
 		this.cart_id = cart_id;
+		this.subTotal=subTotal;
 		this.user = user;
 		this.citems=citems;
 		

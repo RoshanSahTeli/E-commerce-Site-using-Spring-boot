@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class User {
@@ -35,14 +36,23 @@ public class User {
 	
 	
 	
-	@OneToMany(mappedBy = "pid",cascade = CascadeType.ALL )
+	@OneToMany(mappedBy = "pid",cascade = CascadeType.REMOVE )
 	public Set<product> product;
 
 	
-	@OneToMany(mappedBy = "cart_id",cascade = CascadeType.ALL)
-	public List<cart> cart;
+	@OneToOne(mappedBy = "user",cascade =CascadeType.REMOVE)
+	public cart cart;
 	
 	
+	
+	public cart getCart() {
+		return cart;
+	}
+
+	public void setCart(cart cart) {
+		this.cart = cart;
+	}
+
 	public String getStatus() {
 		return status;
 	}

@@ -15,15 +15,27 @@ public class CartItems {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int citem_id;
 
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH })
 	@JoinColumn(name = "cart_id")
 	private cart cart;
 
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH })
 	@JoinColumn(name = "pid")
 	private product product;
 	
 	private int quantity;
+	
+	private double total;
+	
+	
+
+	public double getTotal() {
+		return total;
+	}
+
+	public void setTotal(double total) {
+		this.total = total;
+	}
 
 	public int getCitem_id() {
 		return citem_id;
@@ -58,9 +70,10 @@ public class CartItems {
 	}
 
 	public CartItems(int citem_id, com.example.demo.Entity.cart cart, com.example.demo.Entity.product product,
-			int quantity) {
+			int quantity,double total) {
 		super();
 		this.citem_id = citem_id;
+		this.total=total;
 		this.cart = cart;
 		this.product = product;
 		this.quantity = quantity;
